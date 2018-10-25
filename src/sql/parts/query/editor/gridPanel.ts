@@ -21,6 +21,7 @@ import { CopyKeybind } from 'sql/base/browser/ui/table/plugins/copyKeybind.plugi
 import { AdditionalKeyBindings } from 'sql/base/browser/ui/table/plugins/additionalKeyBindings.plugin';
 
 import * as sqlops from 'sqlops';
+import { pd } from 'pretty-data';
 
 import { IKeybindingService } from 'vs/platform/keybinding/common/keybinding';
 import { IContextMenuService } from 'vs/platform/contextview/browser/contextView';
@@ -477,8 +478,26 @@ class GridTable<T> extends Disposable implements IView {
 		if (column && (column.isXml || column.isJson)) {
 			this.runner.getQueryRows(event.cell.row, 1, this.resultSet.batchId, this.resultSet.id).then(d => {
 				let value = d.resultSubset.rows[0][event.cell.cell - 1];
-				let input = this.untitledEditorService.createOrGet(undefined, column.isXml ? 'xml' : 'json', value.displayValue);
-				this.editorService.openEditor(input);
+				let content: string;
+				if (column.isXml) {
+					content = pd.xml(value.displayValue);
+				} else if (column.isJson) {
+					let jsonContent: string;
+					try {
+						jsonContent = JSON.parse(value.displayValue);
+					} catch (e) {
+						// If Json fails to parse, fall back on original Json content
+						content = value.displayValue;
+					}
+					if (jsonContent) {
+						// If Json content was valid and parsed, pretty print content to a string
+						content = JSON.stringify(jsonContent, undefined, 4);
+					}
+				}
+				if (content) {
+					let input = this.untitledEditorService.createOrGet(undefined, column.isXml ? 'xml' : 'json', content);
+					this.editorService.openEditor(input);
+				}
 			});
 		}
 	}
