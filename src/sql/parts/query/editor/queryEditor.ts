@@ -29,6 +29,7 @@ import { UntitledEditorInput } from 'vs/workbench/common/editor/untitledEditorIn
 import { ResourceEditorInput } from 'vs/workbench/common/editor/resourceEditorInput';
 import URI from 'vs/base/common/uri';
 import { ICodeEditor } from 'vs/editor/browser/editorBrowser';
+import { IDisposable } from 'vs/base/common/lifecycle';
 
 const EditorRegistry = Registry.as<IEditorRegistry>(Extensions.Editors);
 
@@ -59,6 +60,10 @@ export class QueryEditor extends BaseEditor {
 	readonly onFocus: Event<void> = this._onFocus.event;
 
 	private lastFocusedEditor: BaseEditor;
+
+	private resultsVisible: boolean = false;
+
+	private inputDispose: IDisposable;
 
 	constructor(
 		@ITelemetryService telemetryService: ITelemetryService,
@@ -146,6 +151,11 @@ export class QueryEditor extends BaseEditor {
 		// Remember view settings if input changes
 		this.saveQueryEditorViewState(this.input);
 
+		// TODO
+		if (this.inputDispose) {
+			this.inputDispose.dispose();
+		}
+
 		const oldInput = this.input;
 		super.setInput(input, options, token);
 
@@ -153,7 +163,8 @@ export class QueryEditor extends BaseEditor {
 			return TPromise.as(undefined);
 		}
 
-		this.input.onQuery(() => this.addResultsEditor());
+		// TODO
+		this.inputDispose = this.input.onQuery(() => this.addResultsEditor());
 
 		if (!oldInput || EditorRegistry.getEditor(this.input) !== EditorRegistry.getEditor(oldInput)) {
 			this.createTextEditor();
@@ -301,15 +312,19 @@ export class QueryEditor extends BaseEditor {
 
 	private removeResultsEditor() {
 		this.splitview.removeView(1, Sizing.Distribute);
+		this.resultsVisible = false;
 	}
 
 	private addResultsEditor() {
-		this.splitview.addView({
-			element: this.resultsEditorContainer,
-			layout: size => this.resultsEditor && this.resultsEditor.layout(new DOM.Dimension(this.dimension.width, size)),
-			minimumSize: 220,
-			maximumSize: Number.POSITIVE_INFINITY,
-			onDidChange: Event.None
-		}, Sizing.Distribute);
+		if (!this.resultsVisible) {
+			this.splitview.addView({
+				element: this.resultsEditorContainer,
+				layout: size => this.resultsEditor && this.resultsEditor.layout(new DOM.Dimension(this.dimension.width, size)),
+				minimumSize: 220,
+				maximumSize: Number.POSITIVE_INFINITY,
+				onDidChange: Event.None
+			}, Sizing.Distribute);
+			this.resultsVisible = true;
+		}
 	}
 }

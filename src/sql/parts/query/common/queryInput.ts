@@ -5,7 +5,7 @@
 
 import { EditorInput, ConfirmResult, EditorModel, Verbosity, EncodingMode } from 'vs/workbench/common/editor';
 import { TPromise } from 'vs/base/common/winjs.base';
-import { Emitter, Event } from 'vs/base/common/event';
+import { Event } from 'vs/base/common/event';
 import URI from 'vs/base/common/uri';
 import { FileEditorInput } from 'vs/workbench/parts/files/common/editors/fileEditorInput';
 import { UntitledEditorInput } from 'vs/workbench/common/editor/untitledEditorInput';
@@ -13,6 +13,7 @@ import { IRange } from 'vs/editor/common/core/range';
 
 import { QueryResultsInput } from 'sql/parts/query/common/queryResultsInput';
 import QueryRunner from 'sql/parts/query/execution/queryRunner';
+import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
 
 const MAX_SIZE = 13;
 
@@ -32,13 +33,11 @@ export class QueryInput extends EditorInput {
 	public static readonly ID: string = 'workbench.editorinputs.queryInput';
 	public static readonly SCHEMA: string = 'sql';
 
-	private _onQuery = new Emitter();
-	public readonly onQuery = this._onQuery.event;
-
 	private _runner: QueryRunner;
 
 	constructor(
-		private _text: FileEditorInput | UntitledEditorInput, private _results: QueryResultsInput
+		private _text: FileEditorInput | UntitledEditorInput, private _results: QueryResultsInput,
+		@IInstantiationService private instantiationService: IInstantiationService
 	) {
 		super();
 	}
@@ -119,9 +118,15 @@ export class QueryInput extends EditorInput {
 	// #endregion
 
 	public runQuery(selection?: IRange) {
-		this._onQuery.fire();
+		if (!this._runner) {
+			this.createRunner();
+		}
+		this._runner.runQuery(selection);
 	}
 
+	private createRunner() {
+		this._runner = this.instantiationService.createInstance(QueryRunner, this.uri, '');
+	}
 
 	public matches(otherInput: any): boolean {
 		if (otherInput instanceof QueryInput) {

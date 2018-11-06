@@ -27,6 +27,7 @@ import { IInstantiationService } from 'vs/platform/instantiation/common/instanti
 import { ResultSerializer } from 'sql/parts/query/common/resultSerializer';
 import { TPromise } from 'vs/base/common/winjs.base';
 import { Deferred } from 'sql/base/common/promise';
+import { IRange } from 'vs/editor/common/core/range';
 
 export interface IEditSessionReadyEvent {
 	ownerUri: string;
@@ -166,7 +167,7 @@ export default class QueryRunner {
 	 * Runs the query by pulling the query from the document using the provided selection data
 	 * @param input selection data
 	 */
-	public runQuery(input: sqlops.ISelectionData, runOptions?: sqlops.ExecutionPlanOptions): Thenable<void>;
+	public runQuery(input: IRange, runOptions?: sqlops.ExecutionPlanOptions): Thenable<void>;
 	public runQuery(input, runOptions?: sqlops.ExecutionPlanOptions): Thenable<void> {
 		return this.doRunQuery(input, false, runOptions);
 	}
@@ -175,7 +176,7 @@ export default class QueryRunner {
 	 * Runs the current SQL statement by pulling the query from the document using the provided selection data
 	 * @param input selection data
 	 */
-	public runQueryStatement(input: sqlops.ISelectionData): Thenable<void> {
+	public runQueryStatement(input: IRange): Thenable<void> {
 		return this.doRunQuery(input, true);
 	}
 
@@ -184,7 +185,7 @@ export default class QueryRunner {
 	 * @param input Query string to execute
 	 */
 	private doRunQuery(input: string, runCurrentStatement: boolean, runOptions?: sqlops.ExecutionPlanOptions): Thenable<void>;
-	private doRunQuery(input: sqlops.ISelectionData, runCurrentStatement: boolean, runOptions?: sqlops.ExecutionPlanOptions): Thenable<void>;
+	private doRunQuery(input: IRange, runCurrentStatement: boolean, runOptions?: sqlops.ExecutionPlanOptions): Thenable<void>;
 	private doRunQuery(input, runCurrentStatement: boolean, runOptions?: sqlops.ExecutionPlanOptions): Thenable<void> {
 		if (this.isExecuting) {
 			return TPromise.as(undefined);
