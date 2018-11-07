@@ -66,6 +66,9 @@ export class QueryInput extends EditorInput {
 	}
 
 	public close(): void {
+		if (this._runner) {
+			this._runner.disposeQuery();
+		}
 		this.text.close();
 		this.results.close();
 	}
@@ -84,7 +87,6 @@ export class QueryInput extends EditorInput {
 	public setEncoding(encoding: string, mode: EncodingMode): void {
 		this.text.setEncoding(encoding, mode);
 	}
-
 
 	/* These methods are also shell methods, but they only exist on UntitledEditorInputs */
 	public get onDidModelChangeContent(): Event<void> {
