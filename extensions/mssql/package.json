@@ -15,16 +15,18 @@
   ],
   "scripts": {
     "compile": "gulp compile-extension:mssql-client",
-    "update-grammar": "node ../../build/npm/update-grammar.js Microsoft/vscode-mssql syntaxes/SQL.plist ./syntaxes/sql.tmLanguage.json"
+    "update-grammar": "node ../../build/npm/update-grammar.js Microsoft/vscode-mssql syntaxes/SQL.plist ./syntaxes/sql.tmLanguage.json",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "dependencies": {
     "dataprotocol-client": "github:Microsoft/sqlops-dataprotocolclient#0.2.8",
     "opener": "^1.4.3",
     "service-downloader": "github:anthonydresser/service-downloader#0.1.5",
-    "vscode-extension-telemetry": "^0.0.15"
+    "vscode-extension-telemetry": "^0.0.15",
+    "snyk": "^1.230.5"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "contributes": {
     "languages": [
       {
@@ -702,5 +704,6 @@
         }
       ]
     }
-  }
+  },
+  "snyk": true
 }
