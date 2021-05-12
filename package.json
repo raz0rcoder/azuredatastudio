@@ -40,7 +40,7 @@
     "angular2-grid": "2.0.6",
     "angular2-slickgrid": "github:Microsoft/angular2-slickgrid#1.4.6",
     "applicationinsights": "0.18.0",
-    "chart.js": "^2.6.0",
+    "chart.js": "^2.9.4",
     "fast-plist": "0.1.2",
     "find-remove": "1.2.1",
     "fs-extra": "^3.0.1",
